@@ -1,0 +1,199 @@
+{
+  "info": {
+    "_postman_id": "email-sender-collection-v1",
+    "name": "Email Sender API - Spring Boot + SendGrid",
+    "description": "Colección completa para probar la API de envío de correos. \n\n**URL Base**: http://localhost:8080\n\n**Antes de probar**: Asegúrate de haber configurado tu API Key de SendGrid en application.properties",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/email/health",
+          "host": ["{{base_url}}"],
+          "path": ["api", "email", "health"]
+        },
+        "description": "Verifica que el servicio esté corriendo correctamente."
+      },
+      "response": []
+    },
+    {
+      "name": "Enviar Correo Simple (Texto Plano)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"to\": [\"destinatario@ejemplo.com\"],\n  \"subject\": \"Hola desde Spring Boot + SendGrid!\",\n  \"body\": \"Este es un correo de prueba enviado desde la API con Spring Boot y SendGrid.\",\n  \"htmlContent\": false\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/email/send",
+          "host": ["{{base_url}}"],
+          "path": ["api", "email", "send"]
+        },
+        "description": "Envía un correo de texto plano a un destinatario."
+      },
+      "response": []
+    },
+    {
+      "name": "Enviar Correo HTML",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"to\": [\"destinatario@ejemplo.com\"],\n  \"subject\": \"Correo HTML desde Spring Boot!\",\n  \"body\": \"<html><body><h1 style='color:#6C63FF'>¡Hola!</h1><p>Este es un correo <strong>HTML</strong> enviado desde <em>Spring Boot + SendGrid</em>.</p><br><p style='color:#888'>Enviado automáticamente por Email Sender API</p></body></html>\",\n  \"htmlContent\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/email/send",
+          "host": ["{{base_url}}"],
+          "path": ["api", "email", "send"]
+        },
+        "description": "Envía un correo con contenido HTML."
+      },
+      "response": []
+    },
+    {
+      "name": "Enviar Correo con CC y BCC",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"to\": [\"principal@ejemplo.com\"],\n  \"cc\": [\"copia@ejemplo.com\"],\n  \"bcc\": [\"oculto@ejemplo.com\"],\n  \"subject\": \"Correo con CC y BCC\",\n  \"body\": \"Este correo tiene destinatarios en CC y BCC.\",\n  \"htmlContent\": false\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/email/send",
+          "host": ["{{base_url}}"],
+          "path": ["api", "email", "send"]
+        },
+        "description": "Envía un correo con destinatarios en CC y BCC."
+      },
+      "response": []
+    },
+    {
+      "name": "Enviar Correo a Múltiples Destinatarios",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"to\": [\"usuario1@ejemplo.com\", \"usuario2@ejemplo.com\", \"usuario3@ejemplo.com\"],\n  \"subject\": \"Correo masivo de prueba\",\n  \"body\": \"Este correo fue enviado a múltiples destinatarios simultáneamente.\",\n  \"htmlContent\": false\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/email/send",
+          "host": ["{{base_url}}"],
+          "path": ["api", "email", "send"]
+        },
+        "description": "Envía un correo a múltiples destinatarios a la vez."
+      },
+      "response": []
+    },
+    {
+      "name": "❌ Test: Email inválido (debe dar error 400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"to\": [\"esto-no-es-un-email\"],\n  \"subject\": \"Test\",\n  \"body\": \"Prueba de validación\",\n  \"htmlContent\": false\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/email/send",
+          "host": ["{{base_url}}"],
+          "path": ["api", "email", "send"]
+        },
+        "description": "Prueba de validación: debe devolver error 400 por email inválido."
+      },
+      "response": []
+    },
+    {
+      "name": "❌ Test: Campos obligatorios vacíos (debe dar error 400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"to\": [],\n  \"subject\": \"\",\n  \"body\": \"\",\n  \"htmlContent\": false\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/email/send",
+          "host": ["{{base_url}}"],
+          "path": ["api", "email", "send"]
+        },
+        "description": "Prueba de validación: campos obligatorios vacíos deben retornar error 400."
+      },
+      "response": []
+    }
+  ]
+}

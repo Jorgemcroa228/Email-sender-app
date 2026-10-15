@@ -1,0 +1,9 @@
+com\emailsender\service\EmailService.class
+com\emailsender\controller\EmailController.class
+com\emailsender\service\EmailServiceImpl.class
+com\emailsender\EmailSenderApplication.class
+com\emailsender\config\OpenApiConfig.class
+com\emailsender\dto\EmailRequest.class
+com\emailsender\dto\EmailResponse.class
+com\emailsender\dto\EmailResponse$EmailResponseBuilder.class
+com\emailsender\config\CorsConfig.class

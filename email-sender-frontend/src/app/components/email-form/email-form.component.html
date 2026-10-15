@@ -1,0 +1,175 @@
+<div class="email-form-container">
+
+  <!-- STATUS BADGE -->
+  <div class="status-badge" [ngClass]="backendStatus">
+    <span class="status-dot"></span>
+    <span *ngIf="backendStatus === 'checking'">Conectando al servidor...</span>
+    <span *ngIf="backendStatus === 'online'">Backend activo · Puerto 8080</span>
+    <span *ngIf="backendStatus === 'offline'">
+      Backend no disponible ·
+      <button class="retry-btn" (click)="checkBackendHealth()">Reintentar</button>
+    </span>
+  </div>
+
+  <!-- TÍTULO -->
+  <div class="form-header">
+    <div class="icon-wrapper">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+      </svg>
+    </div>
+    <h1>Enviar Correo</h1>
+    <p>Powered by <strong>SendGrid</strong> + <strong>Spring Boot</strong></p>
+  </div>
+
+  <!-- ALERTA ÉXITO -->
+  <div class="alert success" *ngIf="response && response.success">
+    <div class="alert-icon">✓</div>
+    <div class="alert-content">
+      <strong>¡Correo enviado!</strong>
+      <span>{{ response.message }}</span>
+    </div>
+    <button class="close-btn" (click)="dismissAlert()">✕</button>
+  </div>
+
+  <!-- ALERTA ERROR -->
+  <div class="alert error" *ngIf="errorMessage">
+    <div class="alert-icon">✕</div>
+    <div class="alert-content">
+      <strong>Error al enviar</strong>
+      <span>{{ errorMessage }}</span>
+    </div>
+    <button class="close-btn" (click)="dismissAlert()">✕</button>
+  </div>
+
+  <!-- FORMULARIO -->
+  <form #emailForm="ngForm" (ngSubmit)="onSubmit(emailForm)" novalidate>
+
+    <!-- PARA -->
+    <div class="form-group">
+      <label for="toInput">
+        <span class="label-icon">→</span> Para <span class="required">*</span>
+      </label>
+      <input
+        id="toInput"
+        name="toInput"
+        type="text"
+        [(ngModel)]="toInput"
+        required
+        placeholder="correo@ejemplo.com, otro@ejemplo.com"
+        class="form-control"
+        [class.error-input]="emailForm.submitted && !toInput"
+      />
+      <span class="hint">Separa múltiples correos con comas</span>
+    </div>
+
+    <!-- CC -->
+    <div class="form-group">
+      <label for="ccInput">
+        <span class="label-icon">CC</span> Copia (CC)
+      </label>
+      <input
+        id="ccInput"
+        name="ccInput"
+        type="text"
+        [(ngModel)]="ccInput"
+        placeholder="cc@ejemplo.com (opcional)"
+        class="form-control"
+      />
+    </div>
+
+    <!-- BCC -->
+    <div class="form-group">
+      <label for="bccInput">
+        <span class="label-icon">BCC</span> Copia Oculta (BCC)
+      </label>
+      <input
+        id="bccInput"
+        name="bccInput"
+        type="text"
+        [(ngModel)]="bccInput"
+        placeholder="bcc@ejemplo.com (opcional)"
+        class="form-control"
+      />
+    </div>
+
+    <!-- ASUNTO -->
+    <div class="form-group">
+      <label for="subject">
+        <span class="label-icon">#</span> Asunto <span class="required">*</span>
+      </label>
+      <input
+        id="subject"
+        name="subject"
+        type="text"
+        [(ngModel)]="emailRequest.subject"
+        required
+        placeholder="Escribe el asunto del correo"
+        class="form-control"
+        #subjectField="ngModel"
+        [class.error-input]="subjectField.invalid && emailForm.submitted"
+      />
+      <span class="error-text" *ngIf="subjectField.invalid && emailForm.submitted">El asunto es obligatorio</span>
+    </div>
+
+    <!-- MENSAJE -->
+    <div class="form-group">
+      <label for="body">
+        <span class="label-icon">✉</span> Mensaje <span class="required">*</span>
+      </label>
+      <textarea
+        id="body"
+        name="body"
+        [(ngModel)]="emailRequest.body"
+        required
+        rows="7"
+        placeholder="Escribe tu mensaje aquí..."
+        class="form-control"
+        #bodyField="ngModel"
+        [class.error-input]="bodyField.invalid && emailForm.submitted"
+      ></textarea>
+      <span class="error-text" *ngIf="bodyField.invalid && emailForm.submitted">El mensaje es obligatorio</span>
+    </div>
+
+    <!-- TOGGLE HTML -->
+    <div class="form-group toggle-group">
+      <label class="toggle-label">
+        <div class="toggle-switch">
+          <input
+            type="checkbox"
+            id="htmlContent"
+            name="htmlContent"
+            [(ngModel)]="emailRequest.htmlContent"
+          />
+          <span class="slider"></span>
+        </div>
+        <div class="toggle-text">
+          <span>Contenido HTML</span>
+          <small>Actívalo si el cuerpo del mensaje es HTML</small>
+        </div>
+      </label>
+    </div>
+
+    <!-- BOTÓN ENVIAR -->
+    <button
+      type="submit"
+      class="submit-btn"
+      [disabled]="isLoading"
+      id="send-email-btn"
+    >
+      <span *ngIf="!isLoading" class="btn-content">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
+        </svg>
+        Enviar Correo
+      </span>
+      <span *ngIf="isLoading" class="btn-loading">
+        <span class="spinner"></span>
+        Enviando...
+      </span>
+    </button>
+
+  </form>
+
+</div>
