@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,20 +20,21 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/api/email")
-@RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 @Tag(name = "Email API", description = "Endpoints para envío de correos electrónicos via SendGrid")
 public class EmailController {
-
     private final EmailService emailService;
+
+    public EmailController(EmailService emailService) {
+        this.emailService = emailService;
+    }
 
     // ============================================================
     //  GET /api/email/health — Health Check
     // ============================================================
-    @GetMapping("/health")
-    @Operation(
-            summary = "Health Check",
-            description = "Verifica que el servicio de correo esté activo",
+@GetMapping("/health")
+@Operation(       summary = "Health Check",
+description = "Verifica que el servicio de correo esté activo",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Servicio activo")
             }
